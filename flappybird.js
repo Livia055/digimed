@@ -41,11 +41,7 @@ window.onload = function() {
     board = document.getElementById("board");
     board.height = boardHeight;
     board.width = boardWidth;
-    context = board.getContext("2d"); //used for drawing on the board
-
-    //draw flappy bird
-    // context.fillStyle = "green";
-    // context.fillRect(bird.x, bird.y, bird.width, bird.height);
+    context = board.getContext("2d");
 
     //load images
     birdImg = new Image();
@@ -61,8 +57,11 @@ window.onload = function() {
     bottomPipeImg.src = "./bottompipe.png";
 
     requestAnimationFrame(update);
-    setInterval(placePipes, 1500); //every 1.5 seconds
-    document.addEventListener("keydown", moveBird);
+    setInterval(placePipes, 1500);
+    
+    // --- PERUBAHAN DI SINI ---
+    document.addEventListener("keydown", moveBird); // Tetap simpan keyboard
+    document.addEventListener("click", moveBird);   // Tambahkan deteksi klik mouse/layar
 }
 
 function update() {
@@ -146,7 +145,8 @@ function placePipes() {
 }
 
 function moveBird(e) {
-    if (e.code == "Space" || e.code == "ArrowUp" || e.code == "KeyX") {
+    // Cek apakah event-nya adalah "click" ATAU tombol keyboard tertentu
+    if (e.type == "click" || e.code == "Space" || e.code == "ArrowUp" || e.code == "KeyX") {
         //jump
         velocityY = -6;
 
