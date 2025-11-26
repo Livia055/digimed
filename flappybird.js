@@ -42,7 +42,7 @@ let gameOver = false;
 let score = 0;
 
 // --- UBAH: Variabel pengaturan jarak pipa ---
-let pipeSpawnRate = 2000; // Ubah ke 2000 untuk lebih jauh, 1000 untuk lebih dekat
+let pipeSpawnRate = 3500; // Ubah ke 2000 untuk lebih jauh, 1000 untuk lebih dekat
 let spawnTimer;
 
 window.onload = function() {
