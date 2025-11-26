@@ -1,41 +1,49 @@
-
 //board
 let board;
-let boardWidth = 360;
-let boardHeight = 640;
+// --- UBAH: Gunakan window size ---
+let boardWidth = window.innerWidth; 
+let boardHeight = window.innerHeight;
 let context;
 
 //bird
-let birdWidth = 120; //width/height ratio = 408/228 = 17/12
+let birdWidth = 120;
 let birdHeight = 80;
-let birdX = boardWidth/8;
-let birdY = boardHeight/2;
+
+// UBAH BAGIAN INI:
+// X = (Setengah Layar) - (Setengah Lebar Burung)
+let birdX = (boardWidth / 2) - (birdWidth / 2); 
+let birdY = boardHeight / 2;
 let birdImg;
 
 let bird = {
-    x : birdX,
-    y : birdY,
-    width : birdWidth,
-    height : birdHeight
+    x: birdX,
+    y: birdY,
+    width: birdWidth,
+    height: birdHeight
 }
 
 //pipes
 let pipeArray = [];
-let pipeWidth = 128; //width/height ratio = 384/3072 = 1/8
+let pipeWidth = 128;
 let pipeHeight = 512;
-let pipeX = boardWidth;
+// --- UBAH: pipeX jangan fix di awal, tapi nanti diambil dari boardWidth saat spawn ---
+let pipeX = boardWidth; 
 let pipeY = 0;
 
 let topPipeImg;
 let bottomPipeImg;
 
 //physics
-let velocityX = -2; //pipes moving left speed
-let velocityY = 0; //bird jump speed
+let velocityX = -2;
+let velocityY = 0;
 let gravity = 0.15;
 
 let gameOver = false;
 let score = 0;
+
+// --- UBAH: Variabel pengaturan jarak pipa ---
+let pipeSpawnRate = 2300; // Ubah ke 2000 untuk lebih jauh, 1000 untuk lebih dekat
+let spawnTimer;
 
 window.onload = function() {
     board = document.getElementById("board");
@@ -57,11 +65,23 @@ window.onload = function() {
     bottomPipeImg.src = "./Boxbot.png";
 
     requestAnimationFrame(update);
-    setInterval(placePipes, 1500);
     
-    // --- PERUBAHAN DI SINI ---
-    document.addEventListener("keydown", moveBird); // Tetap simpan keyboard
-    document.addEventListener("click", moveBird);   // Tambahkan deteksi klik mouse/layar
+    // --- UBAH: Gunakan variabel pipeSpawnRate ---
+    spawnTimer = setInterval(placePipes, pipeSpawnRate);
+
+    document.addEventListener("keydown", moveBird);
+    document.addEventListener("click", moveBird);
+    
+    // --- UBAH: Fitur Resize agar responsif saat layar diputar/diubah ---
+    window.addEventListener('resize', function() {
+        boardWidth = window.innerWidth;
+        boardHeight = window.innerHeight;
+        board.width = boardWidth;
+        board.height = boardHeight;
+
+        // TAMBAHAN: Paksa burung kembali ke tengah saat layar berubah ukuran
+        bird.x = (boardWidth / 2) - (birdWidth / 2);
+    });
 }
 
 function update() {
@@ -73,8 +93,7 @@ function update() {
 
     //bird
     velocityY += gravity;
-    // bird.y += velocityY;
-    bird.y = Math.max(bird.y + velocityY, 0); //apply gravity to current bird.y, limit the bird.y to top of the canvas
+    bird.y = Math.max(bird.y + velocityY, 0);
     context.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
 
     if (bird.y > board.height) {
@@ -88,7 +107,7 @@ function update() {
         context.drawImage(pipe.img, pipe.x, pipe.y, pipe.width, pipe.height);
 
         if (!pipe.passed && bird.x > pipe.x + pipe.width) {
-            score += 0.5; //0.5 because there are 2 pipes! so 0.5*2 = 1, 1 for each set of pipes
+            score += 0.5;
             pipe.passed = true;
         }
 
@@ -99,28 +118,19 @@ function update() {
 
     //clear pipes
     while (pipeArray.length > 0 && pipeArray[0].x < -pipeWidth) {
-        pipeArray.shift(); //removes first element from the array
+        pipeArray.shift();
     }
 
     //score
     context.fillStyle = "white";
-    context.font="45px Copasetic";
+    context.font = "45px Copasetic";
     context.fillText(score, 5, 45);
+    
     if (gameOver) {
-        // Simpan settingan alignment sebelumnya (biasanya 'start' atau 'left')
-        let prevAlign = context.textAlign; 
-
-        // Atur supaya titik koordinat dianggap sebagai titik tengah teks
-        context.textAlign = "center"; 
-        
-        // Gambar teks di:
-        // x = boardWidth/2 (tengah horizontal)
-        // y = boardHeight/2 (tengah vertikal)
-        context.fillText("GAME OVER", boardWidth/2, boardHeight/2);
-        
-
-        // (Opsional) Kembalikan alignment supaya skor tidak ikut rata tengah saat restart
-        context.textAlign = prevAlign; 
+        let prevAlign = context.textAlign;
+        context.textAlign = "center";
+        context.fillText("GAME OVER", boardWidth / 2, boardHeight / 2);
+        context.textAlign = prevAlign;
     }
 }
 
@@ -129,52 +139,53 @@ function placePipes() {
         return;
     }
 
-    //(0-1) * pipeHeight/2.
-    // 0 -> -128 (pipeHeight/4)
-    // 1 -> -128 - 256 (pipeHeight/4 - pipeHeight/2) = -3/4 pipeHeight
-    let randomPipeY = pipeY - pipeHeight/4 - Math.random()*(pipeHeight/2);
-    let openingSpace = board.height/2.25;
+    let randomPipeY = pipeY - pipeHeight / 4 - Math.random() * (pipeHeight / 2);
+    let openingSpace = board.height / 2; // Sedikit disesuaikan agar proporsional di layar berbeda
+
+    // --- UBAH: Gunakan boardWidth saat ini sebagai posisi X spawn ---
+    let currentPipeX = boardWidth; 
 
     let topPipe = {
-        img : topPipeImg,
-        x : pipeX,
-        y : randomPipeY,
-        width : pipeWidth,
-        height : pipeHeight,
-        passed : false
+        img: topPipeImg,
+        x: currentPipeX, // Pakai currentPipeX
+        y: randomPipeY,
+        width: pipeWidth,
+        height: pipeHeight,
+        passed: false
     }
     pipeArray.push(topPipe);
 
     let bottomPipe = {
-        img : bottomPipeImg,
-        x : pipeX,
-        y : randomPipeY + pipeHeight + openingSpace,
-        width : pipeWidth,
-        height : pipeHeight,
-        passed : false
+        img: bottomPipeImg,
+        x: currentPipeX, // Pakai currentPipeX
+        y: randomPipeY + pipeHeight + openingSpace,
+        width: pipeWidth,
+        height: pipeHeight,
+        passed: false
     }
     pipeArray.push(bottomPipe);
 }
 
 function moveBird(e) {
-    // Cek apakah event-nya adalah "click" ATAU tombol keyboard tertentu
     if (e.type == "click" || e.code == "Space" || e.code == "ArrowUp" || e.code == "KeyX") {
-        //jump
         velocityY = -6;
 
-        //reset game
         if (gameOver) {
             bird.y = birdY;
             pipeArray = [];
             score = 0;
             gameOver = false;
+            
+            // Opsional: Reset timer pipa supaya sinkron saat restart
+            clearInterval(spawnTimer);
+            spawnTimer = setInterval(placePipes, pipeSpawnRate);
         }
     }
 }
 
 function detectCollision(a, b) {
-    return a.x < b.x + b.width &&   //a's top left corner doesn't reach b's top right corner
-           a.x + a.width > b.x &&   //a's top right corner passes b's top left corner
-           a.y < b.y + b.height &&  //a's top left corner doesn't reach b's bottom left corner
-           a.y + a.height > b.y;    //a's bottom left corner passes b's top left corner
+    return a.x < b.x + b.width &&
+           a.x + a.width > b.x &&
+           a.y < b.y + b.height &&
+           a.y + a.height > b.y;
 }

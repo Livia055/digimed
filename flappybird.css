@@ -1,9 +1,16 @@
 body {
-    font-family:'Courier New', Courier, monospace;
+    font-family: 'Courier New', Courier, monospace;
     text-align: center;
+    margin: 0;           /* Hapus margin default */
+    padding: 0;          /* Hapus padding default */
+    overflow: hidden;    /* Hilangkan scrollbar */
+    background-color: black; /* Opsional: warna latar belakang jika gambar tidak muat */
 }
 
 #board {
+    display: block;     /* Agar canvas berperilaku seperti blok */
+    width: 100%;        /* Pastikan canvas memenuhi lebar container */
+    height: 100%;       /* Pastikan canvas memenuhi tinggi container */
     /* background-color: skyblue; */
     background-image: url("./bg3.png");
 }
