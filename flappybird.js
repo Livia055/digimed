@@ -6,8 +6,8 @@ let boardHeight = 640;
 let context;
 
 //bird
-let birdWidth = 34; //width/height ratio = 408/228 = 17/12
-let birdHeight = 24;
+let birdWidth = 120; //width/height ratio = 408/228 = 17/12
+let birdHeight = 80;
 let birdX = boardWidth/8;
 let birdY = boardHeight/2;
 let birdImg;
@@ -21,7 +21,7 @@ let bird = {
 
 //pipes
 let pipeArray = [];
-let pipeWidth = 64; //width/height ratio = 384/3072 = 1/8
+let pipeWidth = 128; //width/height ratio = 384/3072 = 1/8
 let pipeHeight = 512;
 let pipeX = boardWidth;
 let pipeY = 0;
@@ -32,7 +32,7 @@ let bottomPipeImg;
 //physics
 let velocityX = -2; //pipes moving left speed
 let velocityY = 0; //bird jump speed
-let gravity = 0.1;
+let gravity = 0.15;
 
 let gameOver = false;
 let score = 0;
@@ -45,16 +45,16 @@ window.onload = function() {
 
     //load images
     birdImg = new Image();
-    birdImg.src = "./flappybird.png";
+    birdImg.src = "./c2.png";
     birdImg.onload = function() {
         context.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
     }
 
     topPipeImg = new Image();
-    topPipeImg.src = "./toppipe.png";
+    topPipeImg.src = "./Boxup.png";
 
     bottomPipeImg = new Image();
-    bottomPipeImg.src = "./bottompipe.png";
+    bottomPipeImg.src = "./Boxbot.png";
 
     requestAnimationFrame(update);
     setInterval(placePipes, 1500);
@@ -104,11 +104,23 @@ function update() {
 
     //score
     context.fillStyle = "white";
-    context.font="45px sans-serif";
+    context.font="45px Copasetic";
     context.fillText(score, 5, 45);
-
     if (gameOver) {
-        context.fillText("GAME OVER", 5, 90);
+        // Simpan settingan alignment sebelumnya (biasanya 'start' atau 'left')
+        let prevAlign = context.textAlign; 
+
+        // Atur supaya titik koordinat dianggap sebagai titik tengah teks
+        context.textAlign = "center"; 
+        
+        // Gambar teks di:
+        // x = boardWidth/2 (tengah horizontal)
+        // y = boardHeight/2 (tengah vertikal)
+        context.fillText("GAME OVER", boardWidth/2, boardHeight/2);
+        
+
+        // (Opsional) Kembalikan alignment supaya skor tidak ikut rata tengah saat restart
+        context.textAlign = prevAlign; 
     }
 }
 
@@ -121,7 +133,7 @@ function placePipes() {
     // 0 -> -128 (pipeHeight/4)
     // 1 -> -128 - 256 (pipeHeight/4 - pipeHeight/2) = -3/4 pipeHeight
     let randomPipeY = pipeY - pipeHeight/4 - Math.random()*(pipeHeight/2);
-    let openingSpace = board.height/4;
+    let openingSpace = board.height/2.25;
 
     let topPipe = {
         img : topPipeImg,
