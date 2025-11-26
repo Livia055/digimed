@@ -13,4 +13,7 @@ body {
     height: 100%;       /* Pastikan canvas memenuhi tinggi container */
     /* background-color: skyblue; */
     background-image: url("./bg3.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
